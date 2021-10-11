@@ -23,7 +23,7 @@ deploy:
 teardown:
 	@:$(call check_defined, stage, stage name)
 	@:$(call check_defined, region, AWS region)
-	echo "Destroying ${TF_VAR_service_name} to ${stage}, region: ${region}"
+	echo "Destroying ${TF_VAR_service_name}, ${stage}, region: ${region}"
 	cd infrastructure \
 		&& source select_environment.sh ${stage} ${region} \
 		&& tf destroy ${terraform_args}
