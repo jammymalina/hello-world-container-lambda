@@ -22,7 +22,7 @@ deploy:
 	@:$(call check_defined, region, AWS region)
 	echo "Deploying ${TF_VAR_service_name} to ${stage}, region: ${region}"
 	cd infrastructure \
-		&& export TF_VAR_region=${region} \
+		&& export TF_VAR_region=${region} && export TF_VAR_stage=${stage} \
 		&& $(call terraform_init,$(strip ${stage}),$(strip ${region})) \
 		&& $(call terraform_apply,$(strip ${stage}),$(strip ${terraform_args}))
 
@@ -31,7 +31,7 @@ teardown:
 	@:$(call check_defined, region, AWS region)
 	echo "Destroying ${TF_VAR_service_name}, ${stage}, region: ${region}"
 	cd infrastructure \
-		&& export TF_VAR_region=${region} \
+		&& export TF_VAR_region=${region} && export TF_VAR_stage=${stage} \
 		&& $(call terraform_init,$(strip ${stage}),$(strip ${region})) \
 		&& $(call terraform_destroy,$(strip ${stage}),$(strip ${terraform_args}))
 
@@ -39,6 +39,6 @@ test:
 	@:$(call check_defined, stage, stage name)
 	@:$(call check_defined, region, AWS region)
 	cd infrastructure \
-		&& export TF_VAR_region=${region} \
+		&& export TF_VAR_region=${region} && export TF_VAR_stage=${stage} \
 		&& $(call terraform_init,$(strip ${stage}),$(strip ${region})) \
 		&& aws lambda invoke --region ${region} --function-name $$(terraform output -raw function_name) --payload fileb://../test/events/checkerboard_api_gw.json /dev/stdout | cat
