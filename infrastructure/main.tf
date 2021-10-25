@@ -25,7 +25,7 @@ locals {
       function_name = "checkerboard-lambda"
       memory_size   = local.default_memory_size
       timeout       = local.default_timeout
-      build_args    = "--build-arg binary=checkerboard --build-arg log_level=${var.log_level}"
+      build_args    = "--build-arg binary=checkerboard --build-arg stage=${var.stage} --build-arg log_level=${var.log_level}"
     }
   }
 }
@@ -100,4 +100,71 @@ resource "aws_iam_role" "lambda_role" {
 resource "aws_iam_role_policy_attachment" "basic_lambda_policy" {
   role       = aws_iam_role.lambda_role.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+}
+
+# -----------------------------------------------------------------------------------------------------
+
+resource "aws_apigatewayv2_api" "api_gw_api" {
+  name          = "image-generator-api-${var.stage}"
+  protocol_type = "HTTP"
+
+  cors_configuration {
+    allow_origins = ["*"]
+  }
+}
+
+resource "aws_apigatewayv2_stage" "api_gw_stage" {
+  api_id = aws_apigatewayv2_api.api_gw_api.id
+
+  name        = "$default"
+  auto_deploy = true
+
+  access_log_settings {
+    destination_arn = aws_cloudwatch_log_group.api_gw_log_group.arn
+
+    format = jsonencode({
+      requestId               = "$context.requestId"
+      sourceIp                = "$context.identity.sourceIp"
+      requestTime             = "$context.requestTime"
+      protocol                = "$context.protocol"
+      httpMethod              = "$context.httpMethod"
+      resourcePath            = "$context.resourcePath"
+      routeKey                = "$context.routeKey"
+      status                  = "$context.status"
+      responseLength          = "$context.responseLength"
+      integrationErrorMessage = "$context.integrationErrorMessage"
+      }
+    )
+  }
+}
+
+resource "aws_apigatewayv2_integration" "api_gw_integration" {
+  api_id = aws_apigatewayv2_api.api_gw_api.id
+
+  integration_uri    = aws_lambda_function.lambda_function.invoke_arn
+  integration_type   = "AWS_PROXY"
+  integration_method = "POST"
+
+  payload_format_version = "2.0"
+}
+
+resource "aws_apigatewayv2_route" "checkerboard_route" {
+  api_id = aws_apigatewayv2_api.api_gw_api.id
+
+  route_key = "GET /checkerboard"
+  target    = "integrations/${aws_apigatewayv2_integration.api_gw_integration.id}"
+}
+
+resource "aws_cloudwatch_log_group" "api_gw_log_group" {
+  name              = "/aws/api_gw/${aws_apigatewayv2_api.api_gw_api.name}"
+  retention_in_days = var.log_retention_in_days
+}
+
+resource "aws_lambda_permission" "api_gw_lambda_permission" {
+  statement_id  = "AllowExecutionFromAPIGateway"
+  action        = "lambda:InvokeFunction"
+  principal     = "apigateway.amazonaws.com"
+  function_name = aws_lambda_function.lambda_function.function_name
+
+  source_arn = "${aws_apigatewayv2_api.api_gw_api.execution_arn}/*/*"
 }
