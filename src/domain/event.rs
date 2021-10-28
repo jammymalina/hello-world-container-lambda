@@ -1,6 +1,8 @@
-use serde;
-use serde::de::{Deserialize, Deserializer};
+use serde::de::{Deserialize as DeDeserialize, Deserializer};
+use serde::{Deserialize, Serialize};
+use serde_json::json;
 use std::collections::HashMap;
+use std::fmt::{Display, Formatter};
 
 fn deserialize_lambda_string<'de, D>(deserializer: D) -> Result<Option<String>, D::Error>
 where
@@ -21,17 +23,17 @@ where
 fn deserialize_lambda_map<'de, D, K, V>(deserializer: D) -> Result<HashMap<K, V>, D::Error>
 where
     D: Deserializer<'de>,
-    K: serde::Deserialize<'de>,
+    K: Deserialize<'de>,
     K: std::hash::Hash,
     K: std::cmp::Eq,
-    V: serde::Deserialize<'de>,
+    V: Deserialize<'de>,
 {
     let opt = Option::deserialize(deserializer)?;
     Ok(opt.unwrap_or_default())
 }
 
-#[derive(Debug, serde::Deserialize)]
-pub struct APIGatewayProxyEvent {
+#[derive(Debug, Deserialize, Serialize)]
+pub struct ApiGatewayProxyEvent {
     #[serde(deserialize_with = "deserialize_lambda_string")]
     #[serde(default)]
     pub version: Option<String>,
@@ -60,11 +62,17 @@ pub struct APIGatewayProxyEvent {
     pub path_parameters: HashMap<String, String>,
     #[serde(rename = "requestContext")]
     pub request_context: ApiGatewayProxyEventRequestContext,
-    pub http: ApiGatewayProxyEventHttpInfo,
     pub body: Option<String>,
 }
 
-#[derive(Debug, serde::Deserialize)]
+impl Display for ApiGatewayProxyEvent {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        let value = json!(&self);
+        write!(f, "{}", value.to_string())
+    }
+}
+
+#[derive(Debug, Deserialize, Serialize)]
 pub struct ApiGatewayProxyEventRequestContext {
     #[serde(deserialize_with = "deserialize_lambda_string")]
     #[serde(default)]
@@ -98,9 +106,10 @@ pub struct ApiGatewayProxyEventRequestContext {
     pub time: Option<String>,
     #[serde(rename = "timeEpoch")]
     pub time_epoch: i64,
+    pub http: ApiGatewayProxyEventHttpInfo,
 }
 
-#[derive(Debug, serde::Deserialize)]
+#[derive(Debug, Deserialize, Serialize)]
 pub struct ApiGatewayProxyEventHttpInfo {
     pub method: String,
     #[serde(deserialize_with = "deserialize_lambda_string")]

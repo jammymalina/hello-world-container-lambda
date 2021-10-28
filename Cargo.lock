@@ -348,6 +348,7 @@ dependencies = [
  "base64",
  "lambda_runtime",
  "log",
+ "regex",
  "serde",
  "serde_json",
  "simple_logger",

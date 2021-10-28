@@ -1,5 +1,6 @@
-use crate::domain::color::Color;
 use tiny_skia::Paint;
+
+use crate::domain::color::Color;
 
 pub struct ColorTransformer {}
 

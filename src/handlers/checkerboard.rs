@@ -2,10 +2,18 @@ use lambda_runtime::{handler_fn, Context, Error};
 
 use hello_world_container_lambda::{
     domain::{
-        color::Color, event::APIGatewayProxyEvent, image_api_response::ImageApiResponse,
+        api_response::ApiResponse,
+        color::Color,
+        error_api_response::ErrorApiResponse,
+        errors::{base_error::BaseError, error_severity::ErrorSeverity},
+        event::ApiGatewayProxyEvent,
+        image_api_response::ImageApiResponse,
         shape::Shape,
     },
-    service::dependency_resolver::{Dependecies, DependencyResolver},
+    service::{
+        dependency_resolver::{Dependecies, DependencyResolver},
+        validator::api_validator::ApiValidator,
+    },
 };
 
 #[tokio::main]
@@ -17,8 +25,15 @@ async fn main() -> Result<(), Error> {
     Ok(())
 }
 
-async fn handler(event: APIGatewayProxyEvent, _: Context) -> Result<ImageApiResponse, Error> {
+async fn handler(event: ApiGatewayProxyEvent, _: Context) -> Result<ApiResponse, Error> {
     log::debug!("Running in debug mode");
+    log::info!("Event: {}", event);
+
+    let status = ApiValidator::validate_base_event(&event);
+    if status.is_err() {
+        let err = status.unwrap_err();
+        return Ok(fail(&err));
+    }
 
     let mut dependencies = DependencyResolver::resolve_dependecies(&event);
     let resp = execute(&mut dependencies);
@@ -26,7 +41,7 @@ async fn handler(event: APIGatewayProxyEvent, _: Context) -> Result<ImageApiResp
     Ok(resp)
 }
 
-fn execute(dependencies: &mut Dependecies) -> ImageApiResponse {
+fn execute(dependencies: &mut Dependecies) -> ApiResponse {
     log::info!(
         "Received {} request on {}",
         dependencies.method,
@@ -55,4 +70,13 @@ fn execute(dependencies: &mut Dependecies) -> ImageApiResponse {
     }
 
     ImageApiResponse::init_from_base64(&canvas.get_base64_png_data())
+}
+
+fn fail(err: &Box<dyn BaseError>) -> ApiResponse {
+    match err.get_severity() {
+        ErrorSeverity::Warning => log::warn!("{}", err.get_message()),
+        ErrorSeverity::Error => log::error!("{}", err.get_message()),
+        ErrorSeverity::Fatal => log::error!("{}", err.get_message()),
+    };
+    ErrorApiResponse::init(&err)
 }

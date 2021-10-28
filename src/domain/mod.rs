@@ -1,5 +1,9 @@
+pub mod api_response;
 pub mod canvas;
 pub mod color;
+pub mod error_api_response;
+pub mod errors;
 pub mod event;
+pub mod http_status;
 pub mod image_api_response;
 pub mod shape;

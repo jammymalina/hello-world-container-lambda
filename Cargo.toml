@@ -13,6 +13,7 @@ path = "src/handlers/checkerboard.rs"
 serde = { version = "1.0.130", features = ["derive"] }
 serde_json = "1.0.68"
 valico = "3.6.0"
+regex = "1.5.4"
 
 lambda_runtime = "0.4.1"
 log = "0.4.14"

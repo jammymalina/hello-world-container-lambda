@@ -1,20 +1,11 @@
-use serde::Serialize;
-use std::collections::HashMap;
+use super::{api_response::ApiResponse, http_status::HttpStatusCode};
 
-#[derive(Serialize)]
-pub struct ImageApiResponse {
-    #[serde(rename = "statusCode")]
-    pub status_code: i64,
-    pub headers: HashMap<&'static str, String>,
-    pub body: String,
-    #[serde(rename = "isBase64Encoded")]
-    pub is_base64_encoded: bool,
-}
+pub struct ImageApiResponse;
 
 impl ImageApiResponse {
-    pub fn init_from_base64(image: &str) -> ImageApiResponse {
-        ImageApiResponse {
-            status_code: 200,
+    pub fn init_from_base64(image: &str) -> ApiResponse {
+        ApiResponse {
+            status_code: HttpStatusCode::Ok as i64,
             headers: [
                 ("Content-Type", String::from("image/png")),
                 ("Content-Length", image.len().to_string()),

@@ -1,9 +1,9 @@
+use tiny_skia::{FillRule, Path, PathBuilder, Pixmap, Transform};
+
+use super::color_transformer::ColorTransformer;
 use crate::domain::canvas::Canvas;
 use crate::domain::color::Color;
 use crate::domain::shape::Shape;
-
-use super::color_transformer::ColorTransformer;
-use tiny_skia::{FillRule, Path, PathBuilder, Pixmap, Transform};
 
 pub struct CanvasSkia {
     pixmap: Pixmap,

@@ -1,6 +1,5 @@
-use crate::domain::{canvas::Canvas, event::APIGatewayProxyEvent};
-
 use super::canvas_skia::CanvasSkia;
+use crate::domain::{canvas::Canvas, event::ApiGatewayProxyEvent};
 
 pub struct EnvironmentVariables {
     pub stage: String,
@@ -24,14 +23,19 @@ impl DependencyResolver {
         }
     }
 
-    pub fn resolve_dependecies(event: &APIGatewayProxyEvent) -> Dependecies {
+    pub fn resolve_dependecies(event: &ApiGatewayProxyEvent) -> Dependecies {
         let transaction_id = event
             .request_context
             .request_id
             .clone()
             .unwrap_or(String::from(""));
-        let path = event.http.path.clone().unwrap_or(String::from(""));
-        let method = event.http.method.clone().to_uppercase();
+        let path = event
+            .request_context
+            .http
+            .path
+            .clone()
+            .unwrap_or(String::from(""));
+        let method = event.request_context.http.method.clone().to_uppercase();
 
         Dependecies {
             transaction_id,
@@ -44,7 +48,7 @@ impl DependencyResolver {
         }
     }
 
-    fn parse_image_size(param: &str, event: &APIGatewayProxyEvent) -> Option<u32> {
+    fn parse_image_size(param: &str, event: &ApiGatewayProxyEvent) -> Option<u32> {
         match event.query_string_parameters.get(param) {
             Some(value) => Some(value.parse::<u32>().unwrap()),
             _ => None,
