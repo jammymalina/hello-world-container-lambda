@@ -52,8 +52,10 @@ fn execute(dependencies: &mut Dependecies) -> ApiResponse {
     let cell_width = 20;
     let cell_height = 20;
     let colors = [Color::RGB(255, 255, 255), Color::RGB(0, 0, 0)];
-    let mut color_flag = true;
+    let mut color_flag1 = true;
+    let mut color_flag2;
     for y in (0..canvas.get_height()).step_by(cell_height) {
+        color_flag2 = color_flag1;
         for x in (0..canvas.get_width()).step_by(cell_width) {
             canvas.draw_shape(
                 &Shape::RECT {
@@ -62,11 +64,11 @@ fn execute(dependencies: &mut Dependecies) -> ApiResponse {
                     width: cell_width as f32,
                     height: cell_height as f32,
                 },
-                Some(&colors[color_flag as usize]),
+                Some(&colors[color_flag2 as usize]),
             );
-            color_flag = !color_flag;
+            color_flag2 = !color_flag2;
         }
-        color_flag = !color_flag;
+        color_flag1 = !color_flag1;
     }
 
     ImageApiResponse::init_from_base64(&canvas.get_base64_png_data())
