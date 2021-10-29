@@ -29,7 +29,7 @@ impl InvalidQueryParamError {
             Some(a) => format!(", {}", a),
             _ => String::from(""),
         };
-        InvalidQueryParamError {
+        Self {
             message: format!("Invalid query parameter {}{}", query_param, message_suffix),
         }
     }

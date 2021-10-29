@@ -12,9 +12,9 @@ impl Schema for BaseQueryParamsSchema {
                     width.coerce(json_dsl::string());
                     width.regex(schema::get_positive_integer_regex())
                 });
-                query.opt("height", |width| {
-                    width.coerce(json_dsl::string());
-                    width.regex(schema::get_positive_integer_regex());
+                query.opt("height", |height| {
+                    height.coerce(json_dsl::string());
+                    height.regex(schema::get_positive_integer_regex());
                 });
             });
         })

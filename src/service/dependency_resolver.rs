@@ -1,4 +1,4 @@
-use super::canvas_skia::CanvasSkia;
+use super::{canvas_skia::CanvasSkia, validator::api_validator::ApiValidator};
 use crate::domain::{canvas::Canvas, event::ApiGatewayProxyEvent};
 
 pub struct EnvironmentVariables {
@@ -11,6 +11,7 @@ pub struct Dependecies {
     pub path: String,
     pub method: String,
     pub canvas: Box<dyn Canvas>,
+    pub api_validator: ApiValidator,
 }
 
 pub struct DependencyResolver {}
@@ -45,6 +46,7 @@ impl DependencyResolver {
                 Self::parse_image_size("width", event),
                 Self::parse_image_size("height", event),
             )),
+            api_validator: ApiValidator::init(),
         }
     }
 

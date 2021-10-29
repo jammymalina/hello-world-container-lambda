@@ -1,8 +1,7 @@
+use logger::*;
 use serde::de::{Deserialize as DeDeserialize, Deserializer};
 use serde::{Deserialize, Serialize};
-use serde_json::json;
 use std::collections::HashMap;
-use std::fmt::{Display, Formatter};
 
 fn deserialize_lambda_string<'de, D>(deserializer: D) -> Result<Option<String>, D::Error>
 where
@@ -32,7 +31,7 @@ where
     Ok(opt.unwrap_or_default())
 }
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize, JsonDisplay)]
 pub struct ApiGatewayProxyEvent {
     #[serde(deserialize_with = "deserialize_lambda_string")]
     #[serde(default)]
@@ -63,13 +62,6 @@ pub struct ApiGatewayProxyEvent {
     #[serde(rename = "requestContext")]
     pub request_context: ApiGatewayProxyEventRequestContext,
     pub body: Option<String>,
-}
-
-impl Display for ApiGatewayProxyEvent {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        let value = json!(&self);
-        write!(f, "{}", value.to_string())
-    }
 }
 
 #[derive(Debug, Deserialize, Serialize)]
