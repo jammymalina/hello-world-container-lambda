@@ -39,6 +39,8 @@ resource "aws_lambda_function" "lambda_function" {
   timeout     = local.lambda_functions["checkerboard"].timeout
   memory_size = local.lambda_functions["checkerboard"].memory_size
   role        = aws_iam_role.lambda_role.arn
+
+  architectures = ["arm64"]
 }
 
 resource "aws_ecr_repository" "lambda_repository" {
@@ -58,7 +60,7 @@ resource "null_resource" "lambda_ecr_image_builder" {
     interpreter = ["/bin/bash", "-c"]
     command     = <<-EOT
       aws ecr get-login-password --region ${var.region} | docker login --username AWS --password-stdin ${local.account_id}.dkr.ecr.${var.region}.amazonaws.com
-      docker image build -t ${aws_ecr_repository.lambda_repository.repository_url}:latest ${local.lambda_functions["checkerboard"].build_args} .
+      docker buildx build --platform linux/arm64 -t ${aws_ecr_repository.lambda_repository.repository_url}:latest ${local.lambda_functions["checkerboard"].build_args} .
       docker push ${aws_ecr_repository.lambda_repository.repository_url}:latest
     EOT
   }

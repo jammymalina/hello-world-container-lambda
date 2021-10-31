@@ -1,11 +1,12 @@
-FROM rust:1.56-bullseye as build
+FROM --platform=$BUILDPLATFORM rust:1.56-bullseye as build
+ARG BUILDPLATFORM
+ARG binary
 RUN set -x \
     && apt-get update \
     && apt-get install --no-install-recommends --no-install-suggests -y \
     build-essential \
     libc-dev-arm64-cross gcc-aarch64-linux-gnu \
     && rustup target add aarch64-unknown-linux-gnu
-ARG binary
 WORKDIR /usr/src/api-service
 COPY . .
 RUN cargo build --bin ${binary} --release --target aarch64-unknown-linux-gnu --target-dir /usr/bin/api-service
