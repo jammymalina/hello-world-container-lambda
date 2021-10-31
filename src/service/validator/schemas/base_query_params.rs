@@ -10,7 +10,7 @@ impl Schema for BaseQueryParamsSchema {
             params.req_nested("queryStringParameters", json_dsl::object(), |query| {
                 query.opt("width", |width| {
                     width.coerce(json_dsl::string());
-                    width.regex(schema::get_positive_integer_regex())
+                    width.regex(schema::get_positive_integer_regex());
                 });
                 query.opt("height", |height| {
                     height.coerce(json_dsl::string());
