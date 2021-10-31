@@ -17,10 +17,17 @@ __check_defined = \
 
 .PHONY: all test clean
 
+init:
+	@:$(call check_defined, stage, stage name)
+	@:$(call check_defined, region, AWS region)
+	@echo "Initializing ${TF_VAR_service_name}, ${stage}, region: ${region}"
+	cd infrastructure \
+		&& $(call terraform_init,$(strip ${stage}),$(strip ${region}))
+
 deploy:
 	@:$(call check_defined, stage, stage name)
 	@:$(call check_defined, region, AWS region)
-	echo "Deploying ${TF_VAR_service_name} to ${stage}, region: ${region}"
+	@echo "Deploying ${TF_VAR_service_name} to ${stage}, region: ${region}"
 	cd infrastructure \
 		&& export TF_VAR_region=${region} && export TF_VAR_stage=${stage} \
 		&& $(call terraform_init,$(strip ${stage}),$(strip ${region})) \
@@ -29,16 +36,19 @@ deploy:
 teardown:
 	@:$(call check_defined, stage, stage name)
 	@:$(call check_defined, region, AWS region)
-	echo "Destroying ${TF_VAR_service_name}, ${stage}, region: ${region}"
+	@echo "Destroying ${TF_VAR_service_name}, ${stage}, region: ${region}"
 	cd infrastructure \
 		&& export TF_VAR_region=${region} && export TF_VAR_stage=${stage} \
 		&& $(call terraform_init,$(strip ${stage}),$(strip ${region})) \
 		&& $(call terraform_destroy,$(strip ${stage}),$(strip ${terraform_args}))
 
 test:
-	@:$(call check_defined, stage, stage name)
-	@:$(call check_defined, region, AWS region)
+	@rm -rf ./test/outputs && mkdir -p ./test/outputs
 	cd infrastructure \
-		&& export TF_VAR_region=${region} && export TF_VAR_stage=${stage} \
-		&& $(call terraform_init,$(strip ${stage}),$(strip ${region})) \
-		&& aws lambda invoke --region ${region} --function-name $$(terraform output -raw function_name) --payload fileb://../test/events/checkerboard_api_gw.json /dev/stdout | cat
+		&& curl --silent --output ../test/outputs/checkerboard.png --location --request GET "$$(terraform output -raw api_endpoint)/checkerboard?width=200&height=200&cellWidth=40&cellHeight=40"
+	@compare -metric AE ./test/outputs/checkerboard.png ./test/snapshots/checkerboard.png null: &>/dev/null; \
+	if [ $$? -eq 0 ]; then \
+		echo "The generated image matches the snapshot"; \
+	else \
+		echo "The generated image does NOT match the snapshot, error occured"; \
+	fi

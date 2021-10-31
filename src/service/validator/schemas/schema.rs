@@ -10,5 +10,5 @@ pub fn get_positive_integer_regex() -> Regex {
 }
 
 pub fn get_hex_color_regex() -> Regex {
-    Regex::new(r"^#([A-Fa-f0-9]{8}|[A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$").unwrap()
+    Regex::new(r"^#?([A-Fa-f0-9]{8}|[A-Fa-f0-9]{6}|[A-Fa-f0-9]{4}|[A-Fa-f0-9]{3})$").unwrap()
 }

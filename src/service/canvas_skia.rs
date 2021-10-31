@@ -18,7 +18,7 @@ impl Canvas for CanvasSkia {
         self.pixmap.height()
     }
 
-    fn draw_shape(&mut self, shape: &Shape, fill: Option<&Color>) {
+    fn draw_shape(&mut self, shape: &Shape, fill: Option<Color>) {
         let path = match *shape {
             Shape::RECT {
                 x,

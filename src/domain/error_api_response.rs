@@ -9,10 +9,7 @@ impl ErrorApiResponse {
         let response_body = err.get_response_json();
         ApiResponse {
             status_code: err.get_status_code() as i64,
-            headers: HashMap::from([
-                ("Content-Type", String::from("application/json")),
-                ("Content-Length", response_body.len().to_string()),
-            ]),
+            headers: HashMap::from([("Content-Type", String::from("application/json"))]),
             body: response_body,
             is_base64_encoded: false,
         }
