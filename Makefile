@@ -43,7 +43,7 @@ test:
 	@rm -rf test/outputs && mkdir -p test/outputs
 	@curl --silent --output test/outputs/checkerboard.png --location --request GET "$$($(call terraform_output,api_endpoint))/checkerboard?width=200&height=200&cellWidth=40&cellHeight=40"
 	@compare -metric AE test/outputs/checkerboard.png test/snapshots/checkerboard.png null: &>/dev/null; \
-		if [ $$? -eq 0 ]; then \
+		if [[ $$? -eq 0 ]]; then \
 			echo "The generated image matches the snapshot"; \
 		else \
 			echo "The generated image does NOT match the snapshot, error occured"; \
