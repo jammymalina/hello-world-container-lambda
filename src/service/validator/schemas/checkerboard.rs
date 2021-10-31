@@ -10,7 +10,7 @@ impl Schema for CheckerboardSchema {
             params.req_nested("queryStringParameters", json_dsl::object(), |query| {
                 query.opt("cellWidth", |cell_width| {
                     cell_width.coerce(json_dsl::string());
-                    cell_width.regex(schema::get_positive_integer_regex())
+                    cell_width.regex(schema::get_positive_integer_regex());
                 });
                 query.opt("cellHeight", |cell_height| {
                     cell_height.coerce(json_dsl::string());
@@ -18,7 +18,7 @@ impl Schema for CheckerboardSchema {
                 });
                 query.opt("color1", |color1| {
                     color1.coerce(json_dsl::string());
-                    color1.regex(schema::get_hex_color_regex())
+                    color1.regex(schema::get_hex_color_regex());
                 });
                 query.opt("color2", |color2| {
                     color2.coerce(json_dsl::string());

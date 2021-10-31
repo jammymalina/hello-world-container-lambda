@@ -3,8 +3,7 @@ use std::collections::HashMap;
 use valico::json_dsl::Builder;
 
 use super::schemas::{
-    base_query_params::BaseQueryParamsSchema, checkerboard_schema::CheckerboardSchema,
-    schema::Schema,
+    base_query_params::BaseQueryParamsSchema, checkerboard::CheckerboardSchema, schema::Schema,
 };
 use crate::domain::{
     errors::{base_error::BaseError, invalid_query_param_error::InvalidQueryParamError},
