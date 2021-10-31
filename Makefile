@@ -8,8 +8,6 @@ terraform_apply = terraform -chdir=infrastructure apply -var-file=environments/$
 terraform_destroy = terraform -chdir=infrastructure destroy -var-file=environments/$(1)/variables.tfvars $(2)
 terraform_output = terraform -chdir=infrastructure output -raw $(1)
 
-
-
 check_defined = \
     $(strip $(foreach 1,$1, \
         $(call __check_defined,$1,$(strip $(value 2)))))
