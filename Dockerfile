@@ -1,4 +1,4 @@
-FROM --platform=$BUILDPLATFORM rust:1.56-bullseye as build
+FROM --platform=${BUILDPLATFORM} rust:1.56-bullseye as build
 ARG BUILDPLATFORM
 ARG binary
 RUN set -x \
